@@ -36,4 +36,12 @@ public class Istekoht {
             status = selected ? "selected" : "available";
         }
     }
+
+    public boolean isSelected() {
+        return status.equals("selected");
+    }
+
+    public void setSelected() {
+        this.selected = true;
+    }
 }

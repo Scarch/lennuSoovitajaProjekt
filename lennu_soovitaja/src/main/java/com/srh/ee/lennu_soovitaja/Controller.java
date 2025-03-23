@@ -5,6 +5,8 @@ import java.util.List;
 
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -28,6 +30,36 @@ public class Controller {
 		List<Lend> sobivadLennud = leiaLennud(kust, kuhu, kuupaev, lennuaeg, hind, piletidNr);
 		System.out.println(sobivadLennud.size() + " lendu leitud");
 		return sobivadLennud;
+	}
+
+	// Peale piletite ostu uuendame lennu andmeid
+	@CrossOrigin(origins = "http://localhost:8080")
+	@PostMapping("/api/lend")
+	public void index(@RequestBody Lend lend) {
+
+		selectedToOccupied(lend);
+
+		for (int i = 0; i < lennud.size(); i++) {
+			Lend x = lennud.get(i);
+			if (x.getId() == lend.getId()) {
+				lennud.set(i, lend);
+				System.out.println("Lend muudetud: " + lennud.get(i));
+				return;
+			}
+		}
+	}
+
+	public static void selectedToOccupied(Lend lend) {
+		for (int i = 0; i < lend.getIstekohad().size(); i++) {
+			for (int j = 0; j < lend.getIstekohad().get(i).size(); j++) {
+				for (int k = 0; k < lend.getIstekohad().get(i).get(j).size(); k++) {
+					if (lend.getIstekohad().get(i).get(j).get(k).isSelected()) {
+						lend.getIstekohad().get(i).get(j).get(k).setStatus("occupied");;
+						lend.getIstekohad().get(i).get(j).get(k).setSelected(false);;
+					}
+				}
+			}
+		}
 	}
 
 	// Tagastab konkreetse lennu vastavald id-le

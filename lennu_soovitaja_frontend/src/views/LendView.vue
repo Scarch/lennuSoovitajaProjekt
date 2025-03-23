@@ -107,6 +107,12 @@
         <div class="eemalda-valikud">
             <button @click="eemaldaValikud()">Tühista valikud</button>
         </div>
+
+        <div class="kokkuvote">
+            <h3>Valitud kohad: {{ tagastaKohad() }} </h3>
+            <p>Kokku tuleb: {{ mituKohtaValitud * lend.hind }}€</p>
+            <button @click="teostaOst()">Teosta ost</button>
+        </div>
     </div>
 </template>
 
@@ -130,7 +136,7 @@ export default {
                 algus: '',
                 lõpp: '',
                 hind: 100,
-                istekohad: this.generateRandomSeats()
+                istekohad: [] //this.generateRandomSeats()
             }
         };
     },
@@ -138,30 +144,74 @@ export default {
 
     },
     methods: {
+
+        teostaOst() {
+
+            fetch(`http://localhost:3000/api/lend`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(this.lend),
+            })
+                .then((response) => {
+                    console.log(response.data);
+                    this.fetchLend(this.$route.params.id);
+                    this.eemaldaValikud();
+                    alert('Ost edukalt teostatud!');
+                })
+                .catch((e) => {
+                    console.log(e);
+                    alert('Esines viga.');
+                    console.log("error");
+                });
+
+
+        },
+
+        tagastaKohad() {
+            let kohad = [];
+            for (let i of Array(this.lend.istekohad.length).keys()) {
+                let rida = this.lend.istekohad[i];
+                for (let istekoht of rida[0]) {
+                    if (istekoht.selected) {
+                        kohad.push(istekoht.label + (i + 1));
+                    }
+                }
+                for (let istekoht of rida[1]) {
+                    if (istekoht.selected) {
+                        kohad.push(istekoht.label + (i + 1));
+                    }
+                }
+            }
+            return kohad.join(', ');
+        },
+
+        // Koostatud tehisintellekti abil
         generateRandomSeats() {
             // Create an array to hold 10 rows of seats
             const seats = [];
-            
+
             // Generate rows
             for (let i = 0; i < 30; i++) {
                 // Each row has a left and right section with 3 seats each
                 const leftSection = [];
                 const rightSection = [];
-                
+
                 // Generate left section (A, B, C)
                 leftSection.push({ label: 'A', status: Math.random() > 0.3 ? 'available' : 'occupied', selected: false });
                 leftSection.push({ label: 'B', status: Math.random() > 0.3 ? 'available' : 'occupied', selected: false });
                 leftSection.push({ label: 'C', status: Math.random() > 0.3 ? 'available' : 'occupied', selected: false });
-                
+
                 // Generate right section (D, E, F)
                 rightSection.push({ label: 'D', status: Math.random() > 0.3 ? 'available' : 'occupied', selected: false });
                 rightSection.push({ label: 'E', status: Math.random() > 0.3 ? 'available' : 'occupied', selected: false });
                 rightSection.push({ label: 'F', status: Math.random() > 0.3 ? 'available' : 'occupied', selected: false });
-                
+
                 // Add this row to the seats array
                 seats.push([leftSection, rightSection]);
             }
-            
+
             return seats;
         },
         eemaldaValikud() {
@@ -339,7 +389,7 @@ export default {
                                         }
                                     }
 
-                                    
+
                                 }
 
                                 if (tagaLeidubRida && ridaOffset != 0) {
@@ -355,7 +405,7 @@ export default {
                                             }
                                         }
                                     }
-                                    
+
 
                                     // Teine pool/veerg (kas parem või vasak)
                                     for (let istekohtIndex of Array(this.lend.istekohad[ridaIndex + ridaOffset][(veergOffset + 1) % 2].length).keys()) {
@@ -376,17 +426,17 @@ export default {
                     // Juhtum, kui kasutaja soovib istekohtade lähedust, kuid ei soovi väljapääsu lähedust
                     if (this.jalaruum) {
                         // Juhtum, kui kasutaja soovib istekohtade lähedust ning jalaruumi, kuid ei soovi väljapääsu lähedust
-                        
+
                         //  Jalaruumi on avarii väljapääsu reas ja esimeses reas
                         let jalaruumiRead = [0, Math.floor(this.lend.istekohad.length / 2)];
-                        
+
                         // Alustame esimesest reas, kust leiame vaba koha
                         for (let ridaIndex of jalaruumiRead) {
                             // Otsime reas vaba koha
                             let istekohtLeitud = false;
 
                             let esimeneIstekohtId = null;
-                            
+
                             // Otsime esmalt aknakohta, kui kasutaja seda soovib
                             if (this.aken) {
                                 // Vaatame vasakut aknakohta
@@ -420,14 +470,14 @@ export default {
                                     if (istekohtLeitud) break;
                                 }
                             }
-                            
+
                             // Kui leidsime koha, valime lähedalt ülejäänud kohad
                             if (istekohtLeitud) {
                                 // Jätame valitud koha vahele ja valime ülejäänud kohad samas reas
                                 for (let veerg = 0; veerg < 2; veerg++) {
                                     for (let istekohtIndex = 0; istekohtIndex < this.lend.istekohad[ridaIndex][veerg].length; istekohtIndex++) {
                                         // Kui pole juba valitud koht
-                                        if (!(veerg === esimeneIstekohtId[1] && istekohtIndex === esimeneIstekohtId[2]) && 
+                                        if (!(veerg === esimeneIstekohtId[1] && istekohtIndex === esimeneIstekohtId[2]) &&
                                             this.lend.istekohad[ridaIndex][veerg][istekohtIndex].status === 'available') {
                                             this.lend.istekohad[ridaIndex][veerg][istekohtIndex].selected = true;
                                             this.mituKohtaValitud++;
@@ -437,13 +487,13 @@ export default {
                                         }
                                     }
                                 }
-                                
+
                                 // Kui jalaruumi ridades ei ole piisavalt kohti, jätkame teistest ridadest
                                 if (this.mituKohtaValitud < this.piletidNr) {
                                     for (let rida = 0; rida < this.lend.istekohad.length; rida++) {
                                         // Jätame jalaruumi read vahele, kuna need juba läbisime
                                         if (jalaruumiRead.includes(rida)) continue;
-                                        
+
                                         for (let veerg = 0; veerg < 2; veerg++) {
                                             for (let istekohtIndex = 0; istekohtIndex < this.lend.istekohad[rida][veerg].length; istekohtIndex++) {
                                                 if (this.lend.istekohad[rida][veerg][istekohtIndex].status === 'available') {
@@ -457,7 +507,7 @@ export default {
                                         }
                                     }
                                 }
-                                
+
                                 return; // Kui jõudsime siia, siis kohad on leitud või ei ole piisavalt kohti
                             }
                         }
@@ -465,7 +515,7 @@ export default {
                         // Juhtum, kui kasutaja soovib istekohtade lähedust, kuid ei soovi väljapääsu lähedust ega jalaruumi
                         let ridaLeitud = false;
                         let ridaIndex = 0;
-                        
+
                         // Kui kasutaja soovib aknakohta, otsime rea, kus on vaba aknakoht
                         if (this.aken) {
                             for (let rida = 0; rida < this.lend.istekohad.length; rida++) {
@@ -492,7 +542,7 @@ export default {
                                 }
                             }
                         }
-                        
+
                         if (ridaLeitud) {
                             // Valitud reas valime kohad
                             // Kui kasutaja soovib aknakohta, alustame sellest
@@ -506,11 +556,11 @@ export default {
                                     this.mituKohtaValitud++;
                                 }
                             }
-                            
+
                             // Valime ülejäänud kohad valitud reast
                             for (let veerg = 0; veerg < 2; veerg++) {
                                 for (let istekohtIndex = 0; istekohtIndex < this.lend.istekohad[ridaIndex][veerg].length; istekohtIndex++) {
-                                    if (this.lend.istekohad[ridaIndex][veerg][istekohtIndex].status === 'available' && 
+                                    if (this.lend.istekohad[ridaIndex][veerg][istekohtIndex].status === 'available' &&
                                         !this.lend.istekohad[ridaIndex][veerg][istekohtIndex].selected) {
                                         this.lend.istekohad[ridaIndex][veerg][istekohtIndex].selected = true;
                                         this.mituKohtaValitud++;
@@ -520,11 +570,11 @@ export default {
                                     }
                                 }
                             }
-                            
+
                             // Kui valitud reas pole piisavalt kohti, jätkame järgmistest ridadest
                             for (let rida = 0; rida < this.lend.istekohad.length; rida++) {
                                 if (rida === ridaIndex) continue; // Jätame valitud rea vahele
-                                
+
                                 for (let veerg = 0; veerg < 2; veerg++) {
                                     for (let istekohtIndex = 0; istekohtIndex < this.lend.istekohad[rida][veerg].length; istekohtIndex++) {
                                         if (this.lend.istekohad[rida][veerg][istekohtIndex].status === 'available') {
@@ -549,12 +599,12 @@ export default {
                 if (this.valjapaas) {
                     // Kasutaja soovib istekohti väljapääsu lähedal
                     let valjapaasuRead = [0, this.lend.istekohad.length - 1, Math.floor(this.lend.istekohad.length / 2)];
-                    
+
                     // Kui soovitakse jalaruumi, prioritiseerime vastavad read
                     if (this.jalaruum) {
                         valjapaasuRead = [0, Math.floor(this.lend.istekohad.length / 2)];
                     }
-                    
+
                     // Läbime väljapääsu lähedal olevad read
                     for (let ridaIndex of valjapaasuRead) {
                         // Aknakoha kontroll
@@ -572,19 +622,19 @@ export default {
                                 if (this.mituKohtaValitud >= this.piletidNr) return;
                             }
                         }
-                        
+
                         // Ülejäänud kohad väljapääsu lähedal
                         for (let veerg = 0; veerg < 2; veerg++) {
                             for (let istekohtIndex = 0; istekohtIndex < this.lend.istekohad[ridaIndex][veerg].length; istekohtIndex++) {
                                 // Aknakohtade puhul kontrolli, kas on juba valitud
-                                if ((veerg === 0 && istekohtIndex === 0) || 
+                                if ((veerg === 0 && istekohtIndex === 0) ||
                                     (veerg === 1 && istekohtIndex === this.lend.istekohad[ridaIndex][veerg].length - 1)) {
                                     if (this.aken && this.lend.istekohad[ridaIndex][veerg][istekohtIndex].selected) {
                                         continue; // Jätame vahele, kui aknakoht on juba valitud
                                     }
                                 }
-                                
-                                if (this.lend.istekohad[ridaIndex][veerg][istekohtIndex].status === 'available' && 
+
+                                if (this.lend.istekohad[ridaIndex][veerg][istekohtIndex].status === 'available' &&
                                     !this.lend.istekohad[ridaIndex][veerg][istekohtIndex].selected) {
                                     this.lend.istekohad[ridaIndex][veerg][istekohtIndex].selected = true;
                                     this.mituKohtaValitud++;
@@ -593,13 +643,13 @@ export default {
                             }
                         }
                     }
-                    
+
                     // Kui pole piisavalt kohti väljapääsude lähedal, valime muud vabad kohad
                     this.valiVabadKohad();
                 } else if (this.jalaruum) {
                     // Kasutaja soovib jalaruumi, kuid ei hooli teistest tingimustest
                     let jalaruumiRead = [0, Math.floor(this.lend.istekohad.length / 2)];
-                    
+
                     for (let ridaIndex of jalaruumiRead) {
                         // Aknakoha kontroll
                         if (this.aken) {
@@ -616,11 +666,11 @@ export default {
                                 if (this.mituKohtaValitud >= this.piletidNr) return;
                             }
                         }
-                        
+
                         // Valime ülejäänud kohad jalaruumi ridadest
                         for (let veerg = 0; veerg < 2; veerg++) {
                             for (let istekohtIndex = 0; istekohtIndex < this.lend.istekohad[ridaIndex][veerg].length; istekohtIndex++) {
-                                if (this.lend.istekohad[ridaIndex][veerg][istekohtIndex].status === 'available' && 
+                                if (this.lend.istekohad[ridaIndex][veerg][istekohtIndex].status === 'available' &&
                                     !this.lend.istekohad[ridaIndex][veerg][istekohtIndex].selected) {
                                     this.lend.istekohad[ridaIndex][veerg][istekohtIndex].selected = true;
                                     this.mituKohtaValitud++;
@@ -629,7 +679,7 @@ export default {
                             }
                         }
                     }
-                    
+
                     // Kui jalaruumi ridadel pole piisavalt kohti, valime muud vabad kohad
                     this.valiVabadKohad();
                 } else if (this.aken) {
@@ -648,7 +698,7 @@ export default {
                             if (this.mituKohtaValitud >= this.piletidNr) return;
                         }
                     }
-                    
+
                     // Kui pole piisavalt aknakohti, valime muud vabad kohad
                     this.valiVabadKohad();
                     return;
@@ -663,13 +713,13 @@ export default {
             alert('Sobivaid kohti ei leitud.');
             this.eemaldaValikud();
         },
-        
+
         // Abifunktsioon vabade kohtade valimiseks
         valiVabadKohad() {
             for (let rida = 0; rida < this.lend.istekohad.length; rida++) {
                 for (let veerg = 0; veerg < 2; veerg++) {
                     for (let istekohtIndex = 0; istekohtIndex < this.lend.istekohad[rida][veerg].length; istekohtIndex++) {
-                        if (this.lend.istekohad[rida][veerg][istekohtIndex].status === 'available' && 
+                        if (this.lend.istekohad[rida][veerg][istekohtIndex].status === 'available' &&
                             !this.lend.istekohad[rida][veerg][istekohtIndex].selected) {
                             this.lend.istekohad[rida][veerg][istekohtIndex].selected = true;
                             this.mituKohtaValitud++;
@@ -679,7 +729,7 @@ export default {
                 }
             }
         },
-        
+
         toggleIstekohtParem(ridaIndex, istekohtIndex) {
 
             if (this.lend.istekohad[ridaIndex][1][istekohtIndex].status === 'occupied') {
@@ -694,13 +744,13 @@ export default {
                 return;
             }
 
-            this.lend.istekohad[ridaIndex][1][istekohtIndex].selected = !this.lend.istekohad[ridaIndex][1][istekohtIndex].selected;
-
-            if (istekohaVaartus === false) {
+            if (istekohaVaartus == false) {
                 this.mituKohtaValitud++;
             } else {
                 this.mituKohtaValitud--;
             }
+
+            this.lend.istekohad[ridaIndex][1][istekohtIndex].selected = !this.lend.istekohad[ridaIndex][1][istekohtIndex].selected;
 
         },
         toggleIstekohtVasak(ridaIndex, istekohtIndex) {
@@ -717,27 +767,40 @@ export default {
                 return;
             }
 
-            this.lend.istekohad[ridaIndex][0][istekohtIndex].selected = !this.lend.istekohad[ridaIndex][0][istekohtIndex].selected;
-
-            if (istekohaVaartus === false) {
+            if (istekohaVaartus == false) {
                 this.mituKohtaValitud++;
             } else {
-                this.mituKohtaValitud--;
+                this.mituKohtaValitud -= 1;
             }
+
+            this.lend.istekohad[ridaIndex][0][istekohtIndex].selected = !this.lend.istekohad[ridaIndex][0][istekohtIndex].selected;
 
         },
         fetchLend(id) {
             fetch(`http://localhost:3000/api/lend?id=${id}`)
                 .then((response) => response.json())
                 .then((data) => (this.lend = data))
+                .then(() => this.vaikeVaartused())
                 .catch((err) => console.log(err.message));
         },
+        vaikeVaartused() {
+            for (let rida of this.lend.istekohad) {
+                for (let veerg of rida) {
+                    for (let istekoht of veerg) {
+                        if (istekoht.status == 'available') {
+                            istekoht.selected = false;
+                        }
+                    }
+                }
+            }
+        }
     },
     mounted() {
         this.fetchLend(this.$route.params.id);
         if (this.$route.params.piletidNr) {
             this.piletidNr = this.$route.params.piletidNr;
         }
+
     },
 }
 </script>
@@ -783,7 +846,7 @@ export default {
 }
 
 .vahe {
-
+    width: 40px;
     margin-bottom: 0px;
 }
 
@@ -828,7 +891,7 @@ export default {
     }
 }
 
-.istekoha-valija .inputs > div {
+.istekoha-valija .inputs>div {
     display: flex;
     flex-direction: column;
     min-height: 80px;
@@ -984,5 +1047,44 @@ export default {
     background-color: #3a7bbf;
 }
 
-/* Lennu info stiilid */
+/* Kokkuvõte stiilid */
+.kokkuvote {
+    max-width: 540px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 24px;
+    margin: 30px auto;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    text-align: left;
+}
+
+.kokkuvote h3 {
+    margin-top: 0;
+    color: #333;
+    margin-bottom: 15px;
+    font-size: 1.3rem;
+}
+
+.kokkuvote p {
+    margin-bottom: 20px;
+    font-size: 1.1rem;
+    color: #333;
+}
+
+.kokkuvote button {
+    background-color: #4a90e2;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 12px 30px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    width: 100%;
+}
+
+.kokkuvote button:hover {
+    background-color: #3a7bbf;
+}
 </style>

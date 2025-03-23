@@ -17,6 +17,11 @@ public class Lend {
     private String lopp;
     private List<List<List<Istekoht>>> istekohad;
 
+    // Tavaline konstruktor POST päringu jaoks
+    public Lend() {
+        
+    }
+
     public Lend(String kust, String kuhu, String kuupaev, int lennuaeg, int hind) {
         this.id = ++counter;
         this.kust = kust;

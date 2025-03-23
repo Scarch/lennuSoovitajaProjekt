@@ -165,8 +165,6 @@ export default {
             })
                 .then((response) => response.json())
                 .then((data) => {
-                    console.log(data);
-                    console.log(this.lennud);
                     this.lennud = data;
                 })
                 .catch((e) => {
