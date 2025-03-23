@@ -6,6 +6,8 @@ Autor: Sten-Egert Märtson
 
 ### Frontend
 
+Frontend asub portil 8080.
+
 Olles kaustas `cgi/lennu_soovitaja_frontend` jooksutada järgnevaid käske:
 
 ```
@@ -17,6 +19,8 @@ npm run serve
 ```
 
 ### Backend
+
+Backend asub portil 3000.
 
 Olles kaustas `cgi/lennu_soovitaja` jooksutada käsku:
 
