@@ -28,6 +28,11 @@ const routes = [
     component: LendView,
   },
   {
+    path: "/lennud/:id/:piletidNr",
+    name: "lend",
+    component: LendView,
+  },
+  {
     path: "/:catchAll(.*)",
     name: "lennud",
     component: LennuSoovitajaView,

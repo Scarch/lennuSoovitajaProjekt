@@ -47,8 +47,11 @@
                 <button @click="LeiaLennud()">Leia Lennud</button>
             </div>
     </div>
-    <div class="lennud">
+    <div v-if="lennud.length!=0" class="lennud">
         <LendComponent v-for="lend in lennud" :key="lend.id" :lend="lend" @click="routeLend(lend.id)" class="lend" />
+    </div>
+    <div v-else>
+        <p>Lennupileteid ei leitud või otsingut pole alustatud</p>
     </div>
 </template>
 
@@ -65,6 +68,7 @@ export default {
             kuupäev: '',
             lennuaeg: 1,
             lennud: [
+                /*
                 {
                     id: 1,
                     kust: 'Tallinn',
@@ -101,6 +105,7 @@ export default {
                     lopp: '14:00',
                     hind: 100,
                 },
+                */
             ],
             hind: 100,
             piletidNr: 1
@@ -112,7 +117,7 @@ export default {
     methods: {
         routeLend(id) {
             // Suuna kasutaja valitud lennu detailvaatesse
-            this.$router.push("/lennud/" + id)
+            this.$router.push("/lennud/" + id + "/" + this.piletidNr);
         },
         LeiaLennud() {
             // Kontrolli sisendandmete õigsust
@@ -122,8 +127,9 @@ export default {
             let kuupäevCheck = this.kuupäev === '';
             let lennuaegCheck = this.lennuaeg === 0;
             let hindCheck = this.hind === 0;
+            let kuupaevMinevikusCheck = new Date(this.kuupäev) < new Date();
 
-            if (kustCheck || kuhuCheck || kustKuhuCheck || kuupäevCheck || lennuaegCheck || hindCheck) {
+            if (kustCheck || kuhuCheck || kustKuhuCheck || kuupäevCheck || lennuaegCheck || hindCheck || kuupaevMinevikusCheck) {
                 
                 let errorText = "Vigased andmed:";
                 if (kustCheck) {
@@ -144,16 +150,14 @@ export default {
                 if (hindCheck) {
                     errorText += "\nHind ei saa olla 0. ";
                 }
+                if (kuupaevMinevikusCheck) {
+                    errorText += "\nKuupäev ei saa olla minevikus.";
+                }
+
                 alert(errorText);
 
                 return;
             }
-
-            console.log("Kust: " + this.kust);
-            console.log("Kuhu: " + this.kuhu);
-            console.log("Kuupäev: " + this.kuupäev);
-            console.log("Lennuaeg: " + this.lennuaeg);
-
 
             // Kasutades fetch'i, leiame lennud, mis vastavad esitatud filtritele
             fetch(`http://localhost:3000/api/lennud?kust=${this.kust}&kuhu=${this.kuhu}&kuupaev=${this.kuupäev}&lennuaeg=${this.lennuaeg}&hind=${this.hind}&piletidNr=${this.piletidNr}`, {

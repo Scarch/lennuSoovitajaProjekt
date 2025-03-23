@@ -24,7 +24,7 @@ public class Lend {
         this.kuupaev = kuupaev;
         this.lennuaeg = lennuaeg;
         this.hind = hind;
-        generateRandomTimes();
+        looJuhuslikudAjad();
         this.istekohad = looIstekohadJuhuslikult(30);
     }
 
@@ -41,11 +41,14 @@ public class Lend {
         this.kuupaev = kuupaev;
         this.lennuaeg = (int) (Math.random() * 21);
         this.hind = (int) (Math.random() * 2000);
-        generateRandomTimes();
+        looJuhuslikudAjad();
         this.istekohad = looIstekohadJuhuslikult(30);
     }
     
-    private void generateRandomTimes() {
+    /**
+     * Koostatud tehisintellekti abiga
+     */
+    private void looJuhuslikudAjad() {
         Random random = new Random();
         int hour = random.nextInt(24);
         int minute = random.nextInt(60);
@@ -69,6 +72,9 @@ public class Lend {
         this.lopp = endHour + ":" + endMinuteStr;
     }
 
+    /**
+     * Koostatud tehisintellekti abiga
+     */
     public List<List<List<Istekoht>>> looIstekohadJuhuslikult(int ridadeArv) {
         List<List<List<Istekoht>>> istekohad = new ArrayList<>();
         for (int i = 0; i < ridadeArv; i++) {
@@ -96,6 +102,8 @@ public class Lend {
         }
         return istekohad;
     }
+
+    
     
     public int getId() {
         return id;
@@ -165,6 +173,21 @@ public class Lend {
         this.istekohad = istekohad;
     }
 
+    public int leiaVabadIstekohad() {
+        int vabadKohad = 0;
+        for (List<List<Istekoht>> veergud : istekohad) {
+            for (List<Istekoht> veerg : veergud) {
+                for (Istekoht koht : veerg) {
+                    if (koht.getStatus().equals("available")) {
+                        vabadKohad++;
+                    }
+                }
+            }
+        }
+        return vabadKohad;
+    }
+
+    // Loodud tehisintellekti abiga
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -182,6 +205,7 @@ public class Lend {
         return sb.toString();
     }
     
+    // Loodud tehisintellekti abiga
     private String formatSeatingChart() {
         if (istekohad == null || istekohad.isEmpty()) {
             return "Istekohad pole saadaval";

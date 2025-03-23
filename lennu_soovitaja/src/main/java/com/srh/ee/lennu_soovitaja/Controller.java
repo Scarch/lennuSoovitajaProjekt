@@ -18,11 +18,6 @@ public class Controller {
 	@GetMapping("/api/lennud")
 	public List<Lend> index(@RequestParam String kust, @RequestParam String kuhu, @RequestParam String kuupaev,
 			@RequestParam Integer lennuaeg, @RequestParam Integer hind, @RequestParam Integer piletidNr) {
-		System.out.println("Kust: " + kust);
-		System.out.println("Kuhu: " + kuhu);
-		System.out.println("Kuupaev: " + kuupaev);
-		System.out.println("Lennuaeg: " + lennuaeg);
-		System.out.println("Hind: " + hind);
 
 		// Kui lendu antud kuupäeval antud sihtkohtade vahel veel pole loodud/ei leidu,
 		// siis loome mõned lennud antud juhul juhuslikult
@@ -31,6 +26,7 @@ public class Controller {
 		}
 
 		List<Lend> sobivadLennud = leiaLennud(kust, kuhu, kuupaev, lennuaeg, hind, piletidNr);
+		System.out.println(sobivadLennud.size() + " lendu leitud");
 		return sobivadLennud;
 	}
 
@@ -56,7 +52,7 @@ public class Controller {
 		List<Lend> vastus = new ArrayList<>();
 
 		for (Lend lend : lennud) {
-			if (lend.getKust().equals(kust) && lend.getKuhu().equals(kuhu) && lend.getKuupaev().equals(kuupaev) && lend.getLennuaeg() < lennuaeg && lend.getHind() < hind) {
+			if (lend.getKust().equals(kust) && lend.getKuhu().equals(kuhu) && lend.getKuupaev().equals(kuupaev) && lend.getLennuaeg() < lennuaeg && lend.getHind() < hind && lend.leiaVabadIstekohad() >= piletidNr) {
 				vastus.add(lend);
 			}
 		}
