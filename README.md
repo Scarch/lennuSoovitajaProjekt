@@ -39,6 +39,8 @@ Projekti tegemine nõudis umbes **15h** aega.
     - Ajapuuduse tõttu pidin poole ülesandest teostama tehisintellekti abil (Claude 3.7): koodijupid, mis langevad meetodi `if (this.lahedus)` else ossa on tehisaru poolt koostatud
     - Meetodi sees on ka palju koodi kordamist, et ideaalis oleks teostanud suuremat *refactor*imist koodi peal
     - Oleksin lisanud ka eraldi valiku, mis oleks valinud sisemisi istekohti (vastand aknakohtadest), aga antud meetod on juba piisavalt kompleksne ning aega on ülikooli tõttu vähe
+    - See on perfektne meetod, mida testida, et ideaalis oleks lisanud ka Cypressi abil mõned ühiktestid
+        - Ei saagi praegu garanteerida, et meetod töötab korrektselt iga kord, kui seda kasutatakse
 - Spring Boot
     - Kuna spring boot on minu jaoks uus, siis selle õppimine nõudis aega, aga üldiselt selle tegelikult probleeme ei olnud 
 - Ajapuudus
