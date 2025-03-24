@@ -8,7 +8,7 @@ Autor: Sten-Egert Märtson
 
 Frontend asub portil 8080.
 
-Olles kaustas `cgi/lennu_soovitaja_frontend` jooksutada järgnevaid käske:
+Olles kaustas `lennu_soovitaja_frontend` jooksutada järgnevaid käske:
 
 ```
 npm install
@@ -22,7 +22,7 @@ npm run serve
 
 Backend asub portil 3000.
 
-Olles kaustas `cgi/lennu_soovitaja` jooksutada käsku:
+Olles kaustas `lennu_soovitaja` jooksutada käsku:
 
 ```
 ./mvnw spring-boot:run
